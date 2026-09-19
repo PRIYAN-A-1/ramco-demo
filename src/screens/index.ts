@@ -1,0 +1,16 @@
+export { HomeScreen } from './HomeScreen';
+export { MonthlySpendingTrendsScreen } from './MonthlySpendingTrendsScreen';
+export { EmiCalculatorScreen } from './EmiCalculatorScreen';
+export { EmiManagerScreen } from './EmiManagerScreen';
+export { PaymentScreen } from './PaymentScreen';
+export { AnalyticsScreen } from './AnalyticsScreen';
+export { GoalsAndBudgetsScreen } from './GoalsAndBudgetsScreen';
+export { FamilyAndBillsScreen } from './FamilyAndBillsScreen';
+export { AiAdvisorScreen } from './AiAdvisorScreen';
+export { ProfileScreen } from './ProfileScreen';
+export { RealTimeDataTransferScreen } from './RealTimeDataTransferScreen';
+export { DecisionOptimizerScreen } from './DecisionOptimizerScreen';
+export { DecisionResultsScreen } from './DecisionResultsScreen';
+export { DecisionExplanationScreen } from './DecisionExplanationScreen';
+export { SensitivityAnalysisScreen } from './SensitivityAnalysisScreen';
+export { DecisionHistoryScreen } from './DecisionHistoryScreen';
