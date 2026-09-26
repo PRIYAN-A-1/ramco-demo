@@ -19,7 +19,10 @@ export const AiAdvisorScreen: React.FC = () => {
     monthlySpendingTrends,
     emis,
     budgets,
-    goals
+    goals,
+    goalPortfolioSummary,
+    financialCapacity,
+    goalConflicts
   } = useFinFam();
 
   const [messages, setMessages] = useState<AiChatMessage[]>([
@@ -69,7 +72,10 @@ export const AiAdvisorScreen: React.FC = () => {
         monthlySpendingTrends,
         emis,
         budgets,
-        goals
+        goals,
+        goalPortfolioSummary,
+        financialCapacity,
+        goalConflicts
       });
 
       const botMsg: AiChatMessage = {

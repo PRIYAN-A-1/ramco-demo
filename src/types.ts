@@ -53,16 +53,7 @@ export interface BudgetItem {
   alertThreshold100: boolean;
 }
 
-export interface GoalItem {
-  id: number;
-  name: string;
-  emoji: string;
-  targetAmount: number;
-  currentAmount: number;
-  targetDate: string;
-  category: string;
-  isFamilyGoal: boolean;
-}
+export * from './types/goalPlanning';
 
 export interface BillItem {
   id: number;

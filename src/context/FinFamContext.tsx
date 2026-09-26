@@ -24,6 +24,20 @@ import {
   SubscriptionPlanTier,
   RealTimeTransferType
 } from '../types';
+import {
+  FinancialCapacityResult,
+  GoalFeasibilityResult,
+  GoalConflictItem,
+  GoalPortfolioSummary,
+  ResolutionScenario
+} from '../types/goalPlanning';
+import {
+  FinancialCapacityEngine,
+  GoalFeasibilityEngine,
+  GoalConflictEngine,
+  GoalPortfolioEngine,
+  HACKATHON_DEMO_DATA
+} from '../lib/goalPlanning';
 import { DecisionHistoryRecord } from '../types/decisionOptimizer';
 import { FinancialEngine } from '../lib/financialEngine';
 import { SpendingTrendsEngine } from '../lib/spendingTrendsEngine';
@@ -201,9 +215,98 @@ const INITIAL_BUDGETS: BudgetItem[] = [
 ];
 
 const INITIAL_GOALS: GoalItem[] = [
-  { id: 1, name: 'Emergency Reserve Fund', emoji: '🛡️', targetAmount: 100000, currentAmount: 72500, targetDate: 'Dec 2026', category: 'Emergency', isFamilyGoal: true },
-  { id: 2, name: 'Japan Family Vacation 2027', emoji: '✈️', targetAmount: 250000, currentAmount: 68000, targetDate: 'May 2027', category: 'Travel', isFamilyGoal: true },
-  { id: 3, name: 'Ananya Education Fund', emoji: '🎓', targetAmount: 500000, currentAmount: 145000, targetDate: 'Aug 2028', category: 'Education', isFamilyGoal: true }
+  {
+    id: 1,
+    name: 'Emergency Shield Reserve',
+    emoji: '🛡️',
+    targetAmount: 200000,
+    currentAmount: 100000,
+    targetDate: 'Dec 2027',
+    category: 'Emergency',
+    monthlyContribution: 5000,
+    priority: 'CRITICAL',
+    priorityLabel: 'CRITICAL',
+    hardDeadline: true,
+    deadlineFlexibilityMonths: 0,
+    minimumAcceptableAmount: 200000,
+    expectedAnnualReturn: 5,
+    inflationRate: 5,
+    riskTolerance: 'CONSERVATIVE',
+    essentiality: 'MANDATORY',
+    canPause: false,
+    canReduceTarget: false,
+    isFamilyGoal: true,
+    familyMemberOwner: 'Priyanshu Sharma'
+  },
+  {
+    id: 2,
+    name: 'Family Dream Home Purchase',
+    emoji: '🏡',
+    targetAmount: 1000000,
+    currentAmount: 200000,
+    targetDate: 'Dec 2030',
+    category: 'Real Estate',
+    monthlyContribution: 18000,
+    priority: 'HIGH',
+    priorityLabel: 'HIGH',
+    hardDeadline: true,
+    deadlineFlexibilityMonths: 0,
+    minimumAcceptableAmount: 850000,
+    expectedAnnualReturn: 8,
+    inflationRate: 6,
+    riskTolerance: 'MODERATE',
+    essentiality: 'MANDATORY',
+    canPause: false,
+    canReduceTarget: true,
+    isFamilyGoal: true,
+    familyMemberOwner: 'Family Shared'
+  },
+  {
+    id: 3,
+    name: 'Ananya Higher Education Fund',
+    emoji: '🎓',
+    targetAmount: 500000,
+    currentAmount: 100000,
+    targetDate: 'Aug 2029',
+    category: 'Education',
+    monthlyContribution: 15000,
+    priority: 'HIGH',
+    priorityLabel: 'HIGH',
+    hardDeadline: true,
+    deadlineFlexibilityMonths: 6,
+    minimumAcceptableAmount: 400000,
+    expectedAnnualReturn: 8,
+    inflationRate: 7,
+    riskTolerance: 'CONSERVATIVE',
+    essentiality: 'MANDATORY',
+    canPause: false,
+    canReduceTarget: true,
+    isFamilyGoal: true,
+    familyMemberOwner: 'Ananya Sharma'
+  },
+  {
+    id: 4,
+    name: 'Long-Term Retirement Corpus',
+    emoji: '🏖️',
+    targetAmount: 2000000,
+    currentAmount: 300000,
+    targetDate: 'Dec 2040',
+    category: 'Retirement',
+    monthlyContribution: 10000,
+    priority: 'MEDIUM',
+    priorityLabel: 'MEDIUM',
+    hardDeadline: false,
+    deadlineFlexibilityMonths: 24,
+    minimumAcceptableAmount: 1500000,
+    expectedAnnualReturn: 10,
+    inflationRate: 6,
+    riskTolerance: 'AGGRESSIVE',
+    essentiality: 'IMPORTANT',
+    canPause: true,
+    canReduceTarget: true,
+    isFamilyGoal: true,
+    familyMemberOwner: 'Rajesh & Sunita'
+  }
 ];
 
 const INITIAL_BILLS: BillItem[] = [
@@ -650,10 +753,17 @@ interface FinFamContextType {
   deleteTransaction: (id: number) => void;
   addBudget: (category: string, limit: number) => void;
   deleteBudget: (id: number) => void;
-  addGoal: (name: string, emoji: string, targetAmount: number, targetDate: string, category: string, isFamilyGoal: boolean) => void;
+  addGoal: (name: string, emoji: string, targetAmount: number, targetDate: string, category: string, isFamilyGoal: boolean, extra?: Partial<GoalItem>) => void;
+  updateGoal: (id: number, data: Partial<GoalItem>) => void;
   depositGoal: (id: number, amount: number) => void;
   withdrawGoal: (id: number, amount: number) => void;
   deleteGoal: (id: number) => void;
+  financialCapacity: FinancialCapacityResult;
+  goalFeasibilities: GoalFeasibilityResult[];
+  goalConflicts: GoalConflictItem[];
+  goalPortfolioSummary: GoalPortfolioSummary;
+  loadHackathonDemoData: () => void;
+  applyResolutionScenario: (scenario: ResolutionScenario) => void;
   addBill: (name: string, amount: number, dueDate: string, category: string, isRecurring: boolean, autoPay: boolean) => void;
   payBill: (billId: number, billName: string, amount: number, method?: string) => void;
   deleteBill: (id: number) => void;
@@ -1308,7 +1418,15 @@ export const FinFamProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setBudgets((prev) => prev.filter((b) => b.id !== id));
   };
 
-  const addGoal = (name: string, emoji: string, targetAmount: number, targetDate: string, category: string, isFamilyGoal: boolean) => {
+  const addGoal = (
+    name: string,
+    emoji: string,
+    targetAmount: number,
+    targetDate: string,
+    category: string,
+    isFamilyGoal: boolean,
+    extra?: Partial<GoalItem>
+  ) => {
     const newGoal: GoalItem = {
       id: Date.now(),
       name,
@@ -1317,7 +1435,13 @@ export const FinFamProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       currentAmount: 0,
       targetDate,
       category,
-      isFamilyGoal
+      isFamilyGoal,
+      monthlyContribution: extra?.monthlyContribution || Math.round(targetAmount / 24),
+      priority: extra?.priority || 'MEDIUM',
+      hardDeadline: extra?.hardDeadline || false,
+      expectedAnnualReturn: extra?.expectedAnnualReturn || 8,
+      inflationRate: extra?.inflationRate || 6,
+      ...extra
     };
     setGoals((prev) => [...prev, newGoal]);
   };
@@ -1483,6 +1607,93 @@ export const FinFamProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRealTimeTransferHistory(INITIAL_TRANSFER_HISTORY);
   };
 
+  // Multi-Goal Planning Engine Calculations
+  const totalActiveEMI = useMemo(() => emis.reduce((sum, e) => sum + e.monthlyEmi, 0), [emis]);
+  const recurringBills = useMemo(
+    () => bills.filter((b) => b.isRecurring && !b.isPaid).reduce((sum, b) => sum + b.amount, 0),
+    [bills]
+  );
+
+  const financialCapacity = useMemo(
+    () =>
+      FinancialCapacityEngine.calculateCapacity({
+        monthlyIncome: userProfile.monthlyIncome,
+        essentialExpenses: userProfile.monthlyExpenses,
+        totalActiveEMI,
+        recurringBills
+      }),
+    [userProfile.monthlyIncome, userProfile.monthlyExpenses, totalActiveEMI, recurringBills]
+  );
+
+  const goalPortfolioSummary = useMemo(
+    () =>
+      GoalPortfolioEngine.evaluatePortfolio({
+        goals,
+        monthlyIncome: userProfile.monthlyIncome,
+        essentialExpenses: userProfile.monthlyExpenses,
+        totalActiveEMI,
+        recurringBills
+      }),
+    [goals, userProfile.monthlyIncome, userProfile.monthlyExpenses, totalActiveEMI, recurringBills]
+  );
+
+  const goalFeasibilities = useMemo(
+    () => GoalFeasibilityEngine.evaluateAllGoals(goals, financialCapacity.availableCapacity),
+    [goals, financialCapacity.availableCapacity]
+  );
+
+  const goalConflicts = goalPortfolioSummary.conflicts;
+
+  const loadHackathonDemoData = () => {
+    setUserProfile((prev) => ({
+      ...prev,
+      monthlyIncome: HACKATHON_DEMO_DATA.monthlyIncome,
+      monthlyExpenses: HACKATHON_DEMO_DATA.essentialExpenses
+    }));
+
+    setEmis([
+      {
+        id: 901,
+        title: 'Active Vehicle Loan EMI',
+        category: 'Vehicle',
+        totalAmount: 200000,
+        paidAmount: 50000,
+        monthlyEmi: HACKATHON_DEMO_DATA.activeEMI,
+        interestRate: 8.5,
+        totalTenureMonths: 36,
+        paidTenureMonths: 10,
+        dueDate: '05th of month',
+        dueDayOfMonth: 5,
+        lenderBank: 'HDFC Bank',
+        isAutoDebit: true,
+        isPaidThisMonth: true,
+        iconName: 'Car'
+      }
+    ]);
+
+    setGoals(HACKATHON_DEMO_DATA.goals);
+  };
+
+  const updateGoal = (id: number, data: Partial<GoalItem>) => {
+    setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, ...data } : g)));
+  };
+
+  const applyResolutionScenario = (scenario: ResolutionScenario) => {
+    setGoals((prev) =>
+      prev.map((g) => {
+        const alloc = scenario.allocations.find((a) => a.goalId === g.id);
+        if (!alloc) return g;
+        return {
+          ...g,
+          monthlyContribution: alloc.recommendedContribution,
+          targetDate: alloc.newTargetDate,
+          targetAmount: alloc.newTargetAmount,
+          canPause: alloc.isPaused
+        };
+      })
+    );
+  };
+
   return (
     <FinFamContext.Provider
       value={{
@@ -1541,9 +1752,16 @@ export const FinFamProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         addBudget,
         deleteBudget,
         addGoal,
+        updateGoal,
         depositGoal,
         withdrawGoal,
         deleteGoal,
+        financialCapacity,
+        goalFeasibilities,
+        goalConflicts,
+        goalPortfolioSummary,
+        loadHackathonDemoData,
+        applyResolutionScenario,
         addBill,
         payBill,
         deleteBill,

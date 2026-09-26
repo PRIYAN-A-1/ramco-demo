@@ -1,18 +1,28 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Builds & Exports
+dist/
+**/dist/
+build/
+**/build/
+.expo/
+**/.expo/
+.eas/
+**/.eas/
+web-build/
+
+# Environment
+.env
+.env.local
+local.properties
+debug.keystore
+
+# IDE & OS
+.DS_Store
 *.iml
 .gradle
 .kotlin
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-.env
-debug.keystore
+/.idea/
+.vscode/

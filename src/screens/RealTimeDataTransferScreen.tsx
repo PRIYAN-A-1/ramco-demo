@@ -38,6 +38,23 @@ export const RealTimeDataTransferScreen: React.FC = () => {
     { id: 'mem-4', name: 'Office Workstation', device: 'MacBook Pro (Local LAN)', status: 'Online' }
   ];
 
+  React.useEffect(() => {
+    try {
+      const eventSource = new EventSource('http://localhost:8080/api/realtime/stream');
+      eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setLogMessages((prev) => {
+          const newMsg = `[${new Date(data.timestamp).toLocaleTimeString()}] Live SSE: Equity Index ${data.equityReturnIndex}% | Inflation ${data.inflationRateIndex}% | Latency ${data.meshLatencyMs}ms`;
+          if (prev[prev.length - 1] === newMsg) return prev;
+          return [...prev.slice(-15), newMsg];
+        });
+      };
+      return () => eventSource.close();
+    } catch (e) {
+      console.warn('Real-time SSE server unavailable, running local mesh simulation mode.');
+    }
+  }, []);
+
   const handleStartBeam = async () => {
     setTransferStage('DISCOVERING');
     setProgress(15);

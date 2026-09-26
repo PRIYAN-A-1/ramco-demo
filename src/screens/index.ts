@@ -14,3 +14,7 @@ export { DecisionResultsScreen } from './DecisionResultsScreen';
 export { DecisionExplanationScreen } from './DecisionExplanationScreen';
 export { SensitivityAnalysisScreen } from './SensitivityAnalysisScreen';
 export { DecisionHistoryScreen } from './DecisionHistoryScreen';
+export { MultiGoalPlannerScreen } from './MultiGoalPlannerScreen';
+export { GoalConflictMapScreen } from './GoalConflictMapScreen';
+export { WhatIfLabScreen } from './WhatIfLabScreen';
+export { ResolutionLabScreen } from './ResolutionLabScreen';

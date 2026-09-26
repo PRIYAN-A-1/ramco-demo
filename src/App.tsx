@@ -18,7 +18,11 @@ import {
   DecisionResultsScreen,
   DecisionExplanationScreen,
   SensitivityAnalysisScreen,
-  DecisionHistoryScreen
+  DecisionHistoryScreen,
+  MultiGoalPlannerScreen,
+  GoalConflictMapScreen,
+  WhatIfLabScreen,
+  ResolutionLabScreen
 } from './screens/index';
 import {
   AddExpenseModal,
@@ -289,15 +293,53 @@ export const App: React.FC = () => {
           />
         );
 
-      case 'goals':
+      case 'multi_goal_planner':
         return (
-          <GoalsAndBudgetsScreen
+          <MultiGoalPlannerScreen
             onOpenAddGoal={() => setIsAddGoalOpen(true)}
-            onOpenAddBudget={() => setIsAddBudgetOpen(true)}
             onSelectGoalForTopUp={(goal) => {
               setSelectedGoalForTopUp(goal);
               setIsTopUpGoalOpen(true);
             }}
+            onNavigateToConflictMap={() => setCurrentRoute('conflict_map')}
+            onNavigateToWhatIfLab={() => setCurrentRoute('what_if_lab')}
+            onNavigateToResolutionLab={() => setCurrentRoute('resolution_lab')}
+          />
+        );
+
+      case 'conflict_map':
+        return (
+          <GoalConflictMapScreen
+            onBackToPlanner={() => setCurrentRoute('multi_goal_planner')}
+            onNavigateToResolutionLab={() => setCurrentRoute('resolution_lab')}
+          />
+        );
+
+      case 'what_if_lab':
+        return (
+          <WhatIfLabScreen
+            onBackToPlanner={() => setCurrentRoute('multi_goal_planner')}
+          />
+        );
+
+      case 'resolution_lab':
+        return (
+          <ResolutionLabScreen
+            onBackToPlanner={() => setCurrentRoute('multi_goal_planner')}
+          />
+        );
+
+      case 'goals':
+        return (
+          <MultiGoalPlannerScreen
+            onOpenAddGoal={() => setIsAddGoalOpen(true)}
+            onSelectGoalForTopUp={(goal) => {
+              setSelectedGoalForTopUp(goal);
+              setIsTopUpGoalOpen(true);
+            }}
+            onNavigateToConflictMap={() => setCurrentRoute('conflict_map')}
+            onNavigateToWhatIfLab={() => setCurrentRoute('what_if_lab')}
+            onNavigateToResolutionLab={() => setCurrentRoute('resolution_lab')}
           />
         );
 
