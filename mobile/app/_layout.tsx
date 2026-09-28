@@ -8,8 +8,8 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <MobileFinFamProvider>
-        <StatusBar style="light" backgroundColor="#050816" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#050816' } }}>
+        <StatusBar style="light" backgroundColor="#0F172A" />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0F172A' } }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
       </MobileFinFamProvider>
